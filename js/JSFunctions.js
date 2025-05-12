@@ -1,23 +1,15 @@
 "use strict";
 
 
-/**
- * Globalt objekt som innehåller de attribut som ni skall använda.
- * Initieras genom anrop till funktionern initGlobalObject().
- */
+
 let oGameData = {
     
 };
 
-/**
- * Initerar det globala objektet med de attribut som ni skall använda er av.
- * Funktionen tar inte emot några värden.
- * Funktionen returnerar inte något värde.
- */
 oGameData.initGlobalObject = function() {
     //Datastruktur för vilka platser som är lediga respektive har brickor
-    oGameData.gameField = Array('X', '', '',
-                                '', 'O', '',
+    oGameData.gameField = Array('', '', '',
+                                '', '', '',
                                 '', '', '');
     
     /* Testdata för att testa rättningslösning */
@@ -88,7 +80,7 @@ window.addEventListener('load', function(){
         }
 
         function validateNameLength(){
-            if(tempPlayer1.value.length <= 5 && tempPlayer2.value.length <= 5){
+            if(tempPlayer1.value.length <= 20 && tempPlayer2.value.length <= 20){
                 if(tempPlayer1.value.length > 0 && tempPlayer2.value.length > 0){
                     return true;
                 }
@@ -155,22 +147,26 @@ function initiateGame(){
     let dice = Math.random();
     let playerChar = [oGameData.playerOne, oGameData.playerTwo];
     let playerName = [oGameData.nickNamePlayerOne, oGameData.nickNamePlayerTwo];
+    let currplayerName = "";
     let starter = 0;
     if(dice < 0.5){
         starter = 0;
         oGameData.currentPlayer = playerChar[0];
+        currplayerName = playerName[0];
+        
     } else {
         starter = 1;
         oGameData.currentPlayer = playerChar[1];
+        currplayerName = playerName[1];
     }
 
     let title = document.querySelector('.jumbotron');
     let h1 = title.querySelector('h1');
-    h1.textContent = "Välkommen! Gör ditt första drag för att påbörja spelet";
+    let squares = document.querySelectorAll('td');
+    h1.textContent = "Välkommen! Gör ditt första drag för att påbörja spelet. Det är " + currplayerName.value + " (" + oGameData.currentPlayer + " ) tur";
 
     let table = document.querySelector('.ml-auto');
     table.addEventListener('click', function executeMove(event){
-        console.log(oGameData.gameField);
         if(event.target.tagName != 'TD'){
             return;
         }
@@ -180,15 +176,18 @@ function initiateGame(){
 
             oGameData.gameField[tdID] = oGameData.currentPlayer;
             event.target.textContent = oGameData.currentPlayer;
-            playerChar.reverse();
-            playerName.reverse();
+
+            if (oGameData.gameField[tdID] == oGameData.playerOne){
+                squares[tdID].textContent = oGameData.playerOne;
+                squares[tdID].style.backgroundColor = oGameData.colorPlayerOne.value;
+            } else {
+                squares[tdID].textContent = oGameData.playerTwo;
+                squares[tdID].style.backgroundColor = oGameData.colorPlayerTwo.value;
+            }
+            currplayerName = playerName[getCurrentPlayerNumber(oGameData.currentPlayer)];
             oGameData.currentPlayer = playerChar[getCurrentPlayerNumber(oGameData.currentPlayer)];
 
-            console.log("PlayerChar: " + playerChar);
-            console.log("CurrentPlayer: " + oGameData.currentPlayer);
-            console.log("PlayerNumber: " + getCurrentPlayerNumber(oGameData.currentPlayer));
-
-            h1.textContent = "Det är " + playerName.value + " (" + playerChar + ") tur";
+            h1.textContent = "Det är " + currplayerName.value + " (" + oGameData.currentPlayer + ") tur";
             
             if(oGameData.checkForGameOver() == 1 || oGameData.checkForGameOver() == 2 || oGameData.checkForGameOver() == 3){
                 table.removeEventListener('click', executeMove);
@@ -229,9 +228,9 @@ function resetGameBoard(){
 
 function getCurrentPlayerNumber(currP){
     if(currP == 'X'){
-        return 0;
-    } else if(currP == 'O'){
         return 1;
+    } else if(currP == 'O'){
+        return 0;
     } else {
         return -1;
     }
@@ -345,35 +344,4 @@ oGameData.checkForGameOver = function() {
 oGameData.load = function(){
     
 }
-
-
-/**
- * ID #8: Koden som testades:[1] (() => {
-[2]  if(document.querySelector("[data-id='0']").style.backgroundColor == "rgb(57, 125, 173)" ||  document.querySelector("[data-id='0']").style.backgroundColor == "rgb(107, 199, 130)"){
-[3]     return true;
-[4]   }
-[5]    return false;
-[6]  }
-[7] )();Beskrivning: Koden som kördes ovan returnerade: false. Koden skulle ha returnerat: true.Återkoppling: Du färgerna stämmer inte överens med det spelare 1 eller 2 har när de trckte på den första rutan!
-
-ID #9: Koden som testades:[1] (() => {
-[2]           return document.querySelector("table")._getEventListeners().click.length;
-[3]     }
-[4] )()Beskrivning: Koden kunde inte köras och genererade felmeddelandet: TypeError: undefined is not an object (evaluating 'document.querySelector("table")._getEventListeners().click.length')Återkoppling: Det finns ingen klick-lyssnare på tabellen
-
-ID #14: Kontroll: H1.includesBeskrivning: Elementet med CSS-selektorn: H1 returnerade värdet: false. Testet letade efter värdet: true.Återkoppling: Det skulle stå att en av spelarna vann i elementet med CSS-selektorn H1
-
-ID #18: Kontroll: [data-id='8'].textContentBeskrivning: Elementet med CSS-selektorn: [data-id='8'] returnerade värdet: O. Testet letade efter ett tomt värde ("")Återkoppling: AutoFeedback testade att trycka på en ruta efter spelet har slutat och rutan fick ett värde (X eller O). Detta betyder att det fortfarande finns en lyssnare kvar på tabellen när spelet är slut!
-
-ID #37: Kontroll: H1.includesBeskrivning: Elementet med CSS-selektorn: H1 returnerade värdet: false. Testet letade efter värdet: true.Återkoppling: Det skulle stå att det blev oavgjort i elementet med CSS-selektorn H1
-
-ID #45: Kontroll: H1.includesBeskrivning: Elementet med CSS-selektorn: H1 returnerade värdet: false. Testet letade efter värdet: true.Återkoppling: Det skulle stå att en av spelarna vann i elementet med CSS-selektorn H1
-
-ID #56: Kontroll: H1.includesBeskrivning: Elementet med CSS-selektorn: H1 returnerade värdet: false. Testet letade efter värdet: true.Återkoppling: Det skulle stå att en av spelarna vann i elementet med CSS-selektorn H1. I rundan som ködes fylldes hela planen och på sista draget vann X eller O. Det kan vara så att din kod visar att detta var oavgjort istället för en vinnst. Se över er rättningsalgoritm
-
-ID #65: Kontroll: H1.includesBeskrivning: Elementet med CSS-selektorn: H1 returnerade värdet: false. Testet letade efter värdet: true.Återkoppling: Det skulle stå att en av spelarna vann i elementet med CSS-selektorn H1. Testet tryckte på den första och andra rutan två gånger. Detta betyder att det går att spela på en ruta även om en annan spelare har tryckt på den.
-
-
- */
-
 
